@@ -11,8 +11,7 @@
             --neon-yellow: #f0ff00;
             --hot-pink: #ff007f;
             --electric-blue: #00e5ff;
-            /* Default scale variable controlled by the slider */
-            --game-scale: 30vh; 
+            --game-scale: 28vh; 
         }
 
         body {
@@ -25,8 +24,6 @@
             width: 100vw;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
             overflow: hidden;
             touch-action: manipulation;
         }
@@ -38,38 +35,23 @@
             z-index: -2;
         }
 
-        /* --- UI WIDGETS --- */
-        .controls-top {
-            position: fixed;
-            top: 20px;
-            left: 20px;
+        /* 30% TOP GAP: This ensures your video banner is fully visible */
+        .banner-space {
+            height: 30vh;
+            width: 100%;
+        }
+
+        /* 70% Game Area at the bottom */
+        .game-area-bottom {
+            height: 70vh;
+            width: 100%;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 15px;
-            z-index: 200;
-            background: rgba(0,0,0,0.6);
-            padding: 10px 20px;
-            border-radius: 50px;
-            border: 1px solid var(--electric-blue);
-            backdrop-filter: blur(10px);
+            justify-content: center;
+            box-sizing: border-box;
         }
 
-        .controls-top label { font-size: 14px; font-weight: bold; color: var(--electric-blue); }
-
-        #fullscreen-btn {
-            position: fixed;
-            top: 20px; right: 20px;
-            width: 50px; height: 50px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center; justify-content: center;
-            z-index: 200;
-            backdrop-filter: blur(10px);
-            border: 2px solid var(--electric-blue);
-        }
-
-        /* --- GAME GRID --- */
         #game-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -90,7 +72,6 @@
             background-color: rgba(0,0,0,0.4);
             box-shadow: 0 0 2vh rgba(0, 229, 255, 0.4);
             animation: borderPulse 3s infinite alternate;
-            transition: transform 0.1s ease;
         }
 
         @keyframes borderPulse {
@@ -104,13 +85,11 @@
             transform: scale(1.1);
             filter: brightness(1.8);
             z-index: 10;
-            animation: none;
         }
 
         #start-btn {
-            /* Button scales with the boxes */
-            padding: calc(var(--game-scale) * 0.1) calc(var(--game-scale) * 0.4);
-            font-size: calc(var(--game-scale) * 0.2);
+            padding: 2vh 10vw;
+            font-size: 6vh;
             font-family: 'Fredoka', sans-serif;
             font-weight: 700;
             cursor: pointer;
@@ -122,13 +101,28 @@
             z-index: 10;
         }
 
-        /* Video Overlay */
+        /* COUNTDOWN OVERLAY */
+        #countdown-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 500;
+            justify-content: center;
+            align-items: center;
+            font-size: 25vh;
+            font-weight: bold;
+            color: var(--neon-yellow);
+            text-shadow: 0 0 50px var(--neon-yellow);
+        }
+
+        /* VIDEO OVERLAYS */
         #video-overlay {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: black;
-            z-index: 300;
+            z-index: 600;
         }
 
         #video-blur-bg {
@@ -137,14 +131,28 @@
             top: -10%; left: -10%;
             object-fit: cover;
             filter: blur(40px) brightness(0.4);
-            z-index: 301;
+            z-index: 601;
         }
 
         #game-video {
             position: relative;
             width: 100%; height: 100%;
             object-fit: contain;
-            z-index: 302;
+            z-index: 602;
+        }
+
+        .controls-top {
+            position: fixed; top: 20px; left: 20px;
+            display: flex; gap: 15px; z-index: 200;
+            background: rgba(0,0,0,0.6); padding: 10px 20px; border-radius: 50px;
+            border: 1px solid var(--electric-blue); backdrop-filter: blur(10px);
+        }
+
+        #fullscreen-btn {
+            position: fixed; top: 20px; right: 20px;
+            width: 50px; height: 50px; background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            z-index: 200; backdrop-filter: blur(10px); border: 2px solid var(--electric-blue);
         }
     </style>
 </head>
@@ -155,30 +163,32 @@
     </video>
 
     <div class="controls-top">
-        <label>SIZE:</label>
-        <input type="range" id="size-slider" min="15" max="42" value="30" oninput="adjustSize(this.value)">
+        <input type="range" id="size-slider" min="15" max="32" value="28" oninput="adjustSize(this.value)">
     </div>
 
     <div id="fullscreen-btn" onclick="toggleFullScreen()">
-        <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
-            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
-        </svg>
+        <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
     </div>
 
-    <div id="game-grid">
-        <div class="box" id="box-0"></div>
-        <div class="box" id="box-1"></div>
-        <div class="box" id="box-2"></div>
-        <div class="box" id="box-3"></div>
-        <div class="box" id="box-4"></div>
-        <div class="box" id="box-5"></div>
-        <div class="box" id="box-6"></div>
-        <div class="box" id="box-7"></div>
-        <div class="box" id="box-8"></div>
-        <div class="box" id="box-9"></div>
+    <div class="banner-space"></div>
+
+    <div class="game-area-bottom">
+        <div id="game-grid">
+            <div class="box" id="box-0"></div>
+            <div class="box" id="box-1"></div>
+            <div class="box" id="box-2"></div>
+            <div class="box" id="box-3"></div>
+            <div class="box" id="box-4"></div>
+            <div class="box" id="box-5"></div>
+            <div class="box" id="box-6"></div>
+            <div class="box" id="box-7"></div>
+            <div class="box" id="box-8"></div>
+            <div class="box" id="box-9"></div>
+        </div>
+        <button id="start-btn" onclick="runSelectionCycle()">DANCE!</button>
     </div>
 
-    <button id="start-btn" onclick="runSelectionCycle()">DANCE!</button>
+    <div id="countdown-overlay">READY?</div>
 
     <div id="video-overlay">
         <video id="video-blur-bg" muted playsinline></video>
@@ -193,24 +203,21 @@
         const goodJobVideo = "good-job.mp4";
         const boxes = document.querySelectorAll('.box');
         const overlay = document.getElementById('video-overlay');
+        const countOverlay = document.getElementById('countdown-overlay');
         const videoPlayer = document.getElementById('game-video');
         const blurPlayer = document.getElementById('video-blur-bg');
         const startBtn = document.getElementById('start-btn');
         const sfxShimmer = document.getElementById('sfx-shimmer');
         const sfxStop = document.getElementById('sfx-stop');
 
-        // ADJUST SIZE FUNCTION
-        function adjustSize(val) {
-            document.documentElement.style.setProperty('--game-scale', val + 'vh');
-        }
+        function adjustSize(val) { document.documentElement.style.setProperty('--game-scale', val + 'vh'); }
 
         function toggleFullScreen() {
             const doc = window.document;
             const docEl = doc.documentElement;
             const request = docEl.requestFullscreen || docEl.webkitRequestFullScreen;
             const cancel = doc.exitFullscreen || doc.webkitExitFullscreen;
-            if (!doc.fullscreenElement && !doc.webkitFullscreenElement) { request.call(docEl); } 
-            else { cancel.call(doc); }
+            if (!doc.fullscreenElement && !doc.webkitFullscreenElement) { request.call(docEl); } else { cancel.call(doc); }
         }
 
         function runSelectionCycle() {
@@ -226,27 +233,45 @@
                     clearInterval(interval);
                     sfxShimmer.pause();
                     sfxShimmer.currentTime = 0;
-                    playSequence(count % 10);
+                    startCountdown(count % 10);
                 }
             }, 130);
         }
 
-        function playSequence(index) {
+        function startCountdown(videoIndex) {
             sfxStop.play();
-            setTimeout(() => {
-                overlay.style.display = 'block';
-                startVideo(danceVideos[index]);
-                videoPlayer.onended = () => {
-                    if(videoPlayer.getAttribute('src') !== goodJobVideo) {
-                        startVideo(goodJobVideo);
-                    } else {
-                        overlay.style.display = 'none';
-                        startBtn.style.visibility = 'visible';
-                        boxes.forEach(b => b.classList.remove('shimmer'));
-                        blurPlayer.pause();
-                    }
-                };
-            }, 600);
+            countOverlay.style.display = 'flex';
+            let timer = 3;
+            countOverlay.innerText = "READY?";
+            
+            const countInterval = setInterval(() => {
+                if (timer > 0) {
+                    countOverlay.innerText = timer;
+                    timer--;
+                } else if (timer === 0) {
+                    countOverlay.innerText = "GO!";
+                    timer--;
+                } else {
+                    clearInterval(countInterval);
+                    countOverlay.style.display = 'none';
+                    playSequence(videoIndex);
+                }
+            }, 800);
+        }
+
+        function playSequence(index) {
+            overlay.style.display = 'block';
+            startVideo(danceVideos[index]);
+            videoPlayer.onended = () => {
+                if(videoPlayer.getAttribute('src') !== goodJobVideo) {
+                    startVideo(goodJobVideo);
+                } else {
+                    overlay.style.display = 'none';
+                    startBtn.style.visibility = 'visible';
+                    boxes.forEach(b => b.classList.remove('shimmer'));
+                    blurPlayer.pause();
+                }
+            };
         }
 
         function startVideo(src) {
