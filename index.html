@@ -11,6 +11,8 @@
             --neon-yellow: #f0ff00;
             --hot-pink: #ff007f;
             --electric-blue: #00e5ff;
+            /* Default scale variable controlled by the slider */
+            --game-scale: 30vh; 
         }
 
         body {
@@ -24,12 +26,11 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center; /* Center everything vertically */
+            justify-content: center;
             overflow: hidden;
             touch-action: manipulation;
         }
 
-        /* Full Background Video */
         #bg-video-main {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -37,67 +38,88 @@
             z-index: -2;
         }
 
-        /* Subtle dark layer to ensure the boxes "pop" */
-        .overlay-dimmer {
+        /* --- UI WIDGETS --- */
+        .controls-top {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.2);
-            z-index: -1;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 200;
+            background: rgba(0,0,0,0.6);
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--electric-blue);
+            backdrop-filter: blur(10px);
         }
 
-        /* GIANT Centered Grid */
+        .controls-top label { font-size: 14px; font-weight: bold; color: var(--electric-blue); }
+
+        #fullscreen-btn {
+            position: fixed;
+            top: 20px; right: 20px;
+            width: 50px; height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center; justify-content: center;
+            z-index: 200;
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--electric-blue);
+        }
+
+        /* --- GAME GRID --- */
         #game-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 2vh;
+            gap: 1.5vh;
             z-index: 1;
             margin-bottom: 2vh;
         }
 
         .box {
-            /* 40% of screen height per box allows 2 rows to fit perfectly */
-            width: 40vh; 
-            height: 40vh;
-            border: 0.8vh solid rgba(0, 229, 255, 0.5);
-            border-radius: 5vh;
+            width: var(--game-scale); 
+            height: var(--game-scale);
+            border: 0.6vh solid rgba(0, 229, 255, 0.5);
+            border-radius: 4vh;
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center;
             background-image: url('box-design.png');
             background-color: rgba(0,0,0,0.4);
-            box-shadow: 0 0 3vh rgba(0, 229, 255, 0.4);
+            box-shadow: 0 0 2vh rgba(0, 229, 255, 0.4);
             animation: borderPulse 3s infinite alternate;
-            transition: all 0.1s ease;
+            transition: transform 0.1s ease;
         }
 
         @keyframes borderPulse {
-            from { border-color: var(--electric-blue); box-shadow: 0 0 2vh var(--electric-blue); }
-            to { border-color: var(--hot-pink); box-shadow: 0 0 5vh var(--hot-pink); }
+            from { border-color: var(--electric-blue); box-shadow: 0 0 1vh var(--electric-blue); }
+            to { border-color: var(--hot-pink); box-shadow: 0 0 3vh var(--hot-pink); }
         }
 
         .box.shimmer {
             border-color: var(--neon-yellow) !important;
-            box-shadow: 0 0 12vh var(--neon-yellow) !important;
-            transform: scale(1.1) rotate(2deg);
+            box-shadow: 0 0 10vh var(--neon-yellow) !important;
+            transform: scale(1.1);
             filter: brightness(1.8);
             z-index: 10;
             animation: none;
         }
 
-        /* Scaled Party Button */
         #start-btn {
-            padding: 2vh 12vw;
-            font-size: 7vh;
+            /* Button scales with the boxes */
+            padding: calc(var(--game-scale) * 0.1) calc(var(--game-scale) * 0.4);
+            font-size: calc(var(--game-scale) * 0.2);
             font-family: 'Fredoka', sans-serif;
             font-weight: 700;
             cursor: pointer;
             background: linear-gradient(45deg, var(--hot-pink), var(--electric-blue));
             color: white;
             border: none;
-            border-radius: 10vh;
-            box-shadow: 0 0 6vh var(--hot-pink);
+            border-radius: 100px;
+            box-shadow: 0 0 5vh var(--hot-pink);
             z-index: 10;
-            text-transform: uppercase;
         }
 
         /* Video Overlay */
@@ -106,7 +128,7 @@
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: black;
-            z-index: 100;
+            z-index: 300;
         }
 
         #video-blur-bg {
@@ -115,28 +137,14 @@
             top: -10%; left: -10%;
             object-fit: cover;
             filter: blur(40px) brightness(0.4);
-            z-index: 101;
+            z-index: 301;
         }
 
         #game-video {
             position: relative;
             width: 100%; height: 100%;
             object-fit: contain;
-            z-index: 102;
-        }
-
-        /* Fullscreen Icon */
-        #fullscreen-btn {
-            position: fixed;
-            top: 3vh; right: 3vh;
-            width: 8vh; height: 8vh;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center; justify-content: center;
-            z-index: 50;
-            backdrop-filter: blur(10px);
-            border: 0.3vh solid var(--electric-blue);
+            z-index: 302;
         }
     </style>
 </head>
@@ -146,10 +154,13 @@
         <source src="background-loop.mp4" type="video/mp4">
     </video>
 
-    <div class="overlay-dimmer"></div>
+    <div class="controls-top">
+        <label>SIZE:</label>
+        <input type="range" id="size-slider" min="15" max="42" value="30" oninput="adjustSize(this.value)">
+    </div>
 
     <div id="fullscreen-btn" onclick="toggleFullScreen()">
-        <svg width="4vh" height="4vh" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+        <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
             <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
         </svg>
     </div>
@@ -188,17 +199,18 @@
         const sfxShimmer = document.getElementById('sfx-shimmer');
         const sfxStop = document.getElementById('sfx-stop');
 
+        // ADJUST SIZE FUNCTION
+        function adjustSize(val) {
+            document.documentElement.style.setProperty('--game-scale', val + 'vh');
+        }
+
         function toggleFullScreen() {
             const doc = window.document;
             const docEl = doc.documentElement;
             const request = docEl.requestFullscreen || docEl.webkitRequestFullScreen;
             const cancel = doc.exitFullscreen || doc.webkitExitFullscreen;
-
-            if (!doc.fullscreenElement && !doc.webkitFullscreenElement) {
-                request.call(docEl);
-            } else {
-                cancel.call(doc);
-            }
+            if (!doc.fullscreenElement && !doc.webkitFullscreenElement) { request.call(docEl); } 
+            else { cancel.call(doc); }
         }
 
         function runSelectionCycle() {
